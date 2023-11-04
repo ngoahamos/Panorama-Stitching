@@ -79,7 +79,7 @@ def transformPoint(i, j, H):
     '''
     transformed = np.dot(H, np.array([i, j, 1]))
     transformed /= transformed[2]
-    transformed = transformed.astype(np.int)[:2]
+    transformed = transformed.astype(np.int32)[:2]
     return np.array(transformed)
 
 def transformImage(img, H, dst, forward = False, offset = [0, 0]):
@@ -90,12 +90,12 @@ def transformImage(img, H, dst, forward = False, offset = [0, 0]):
     if forward:
         # direct conversion from image to warped image without gap filling.
         coords = np.indices((w, h)).reshape(2, -1)
-        coords = np.vstack((coords, np.ones(coords.shape[1]))).astype(np.int)    
+        coords = np.vstack((coords, np.ones(coords.shape[1]))).astype(np.int32)    
         transformedPoints = np.dot(H, coords)
         yo, xo = coords[1, :], coords[0, :]
         # projective transform. Output's 3rd index should be one to convert to cartesian coords.
-        yt = np.divide(np.array(transformedPoints[1, :]),np.array(transformedPoints[2, :])).astype(np.int)
-        xt = np.divide(np.array(transformedPoints[0, :]),np.array(transformedPoints[2, :])).astype(np.int)
+        yt = np.divide(np.array(transformedPoints[1, :]),np.array(transformedPoints[2, :])).astype(np.int32)
+        xt = np.divide(np.array(transformedPoints[0, :]),np.array(transformedPoints[2, :])).astype(np.int32)
         dst[yt + offset[1], xt + offset[0]] = img[yo, xo]
     else:
         # applies inverse sampling to prevent any aliasing and hole effects in output image.
@@ -112,7 +112,7 @@ def transformImage(img, H, dst, forward = False, offset = [0, 0]):
         # instead of iterating through the pixels, we take indices and do
         # H.C, where C = coordinates to get the transformed pixels.
         coords = np.indices((maxX - minX, maxY - minY)).reshape(2, -1)
-        coords = np.vstack((coords, np.ones(coords.shape[1]))).astype(np.int)   
+        coords = np.vstack((coords, np.ones(coords.shape[1]))).astype(np.int32)   
 
         coords[0, :] += minX
         coords[1, :] += minY
@@ -121,8 +121,8 @@ def transformImage(img, H, dst, forward = False, offset = [0, 0]):
         yo, xo = coords[1, :], coords[0, :]
 
         # projective transform. Output's 3rd index should be one to convert to cartesian coords.
-        yt = np.divide(np.array(transformedPoints[1, :]),np.array(transformedPoints[2, :])).astype(np.int)
-        xt = np.divide(np.array(transformedPoints[0, :]),np.array(transformedPoints[2, :])).astype(np.int)
+        yt = np.divide(np.array(transformedPoints[1, :]),np.array(transformedPoints[2, :])).astype(np.int32)
+        xt = np.divide(np.array(transformedPoints[0, :]),np.array(transformedPoints[2, :])).astype(np.int32)
 
 
         # to prevent out of range errors
